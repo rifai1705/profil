@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mini WebGIS Kreatif</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            text-align: center;
+            background: #f0f2f5;
+        }
+
+        h2 {
+            margin-top: 10px;
+        }
+
+        #map {
+            width: 600px;
+            height: 400px;
+            margin: auto;
+            background: linear-gradient(#87ceeb, #90ee90);
+            position: relative;
+            border-radius: 10px;
+            border: 2px solid #333;
+            overflow: hidden;
+        }
+
+        .marker {
+            width: 14px;
+            height: 14px;
+            position: absolute;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .marker:hover {
+            transform: scale(1.6);
+        }
+
+        .panel {
+            margin: 10px;
+        }
+
+        button, select {
+            padding: 8px;
+            margin: 5px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #ddd;
+        }
+
+        #info {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<h2>🌍 Mini WebGIS Interaktif</h2>
+
+<div class="panel">
+    Pilih warna:
+    <select id="warna">
+        <option value="red">Merah</option>
+        <option value="blue">Biru</option>
+        <option value="green">Hijau</option>
+        <option value="purple">Ungu</option>
+    </select>
+
+    <button id="btnClear">Clear All</button>
+    <button id="btnToggle">Toggle Layer</button>
+</div>
+
+<div id="map"></div>
+
+<div id="info">Jumlah Marker: 0</div>
+
+<script>
+
+let map = document.getElementById("map");
+let markers = [];
+let tampil = true;
+
+// CLASS MARKER
+class Marker {
+    constructor(x, y, warna) {
+        this.x = x;
+        this.y = y;
+
+        this.el = document.createElement("div");
+        this.el.className = "marker";
+
+        this.el.style.left = x + "px";
+        this.el.style.top = y + "px";
+        this.el.style.background = warna;
+
+        // klik marker → tampilkan koordinat
+        this.el.onclick = () => {
+            alert("Koordinat: (" + this.x.toFixed(0) + ", " + this.y.toFixed(0) + ")");
+        };
+    }
+
+    addTo(peta) {
+        peta.appendChild(this.el);
+    }
+
+    hapus() {
+        this.el.remove();
+    }
+}
+
+// UPDATE INFO
+function updateInfo() {
+    document.getElementById("info").innerText =
+        "Jumlah Marker: " + markers.length;
+}
+
+// KLIK MAP → TAMBAH MARKER
+map.addEventListener("click", function(e) {
+
+    let rect = map.getBoundingClientRect();
+
+    let x = e.clientX - rect.left;
+    let y = e.clientY - rect.top;
+
+    let warna = document.getElementById("warna").value;
+
+    let m = new Marker(x, y, warna);
+    m.addTo(map);
+
+    markers.push(m);
+
+    updateInfo();
+});
+
+// CLEAR MARKER
+document.getElementById("btnClear").onclick = function() {
+
+    for (let i = 0; i < markers.length; i++) {
+        markers[i].hapus();
+    }
+
+    markers = [];
+    updateInfo();
+};
+
+// TOGGLE LAYER
+document.getElementById("btnToggle").onclick = function() {
+
+    tampil = !tampil;
+
+    for (let i = 0; i < markers.length; i++) {
+        markers[i].el.style.display = tampil ? "block" : "none";
+    }
+};
+
+</script>
+
+</body>
+</html>
